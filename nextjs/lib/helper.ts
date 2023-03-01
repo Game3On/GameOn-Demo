@@ -7,6 +7,7 @@ import {
   USDToken__factory,
   WETH__factory,
   EntryPoint__factory,
+  BasePaymaster__factory,
 } from "@aa-lib/contracts"
 import {
   ERC4337EthersProvider,
@@ -126,39 +127,23 @@ export async function getAAProvider(
   }
 }
 
-export async function deposit(paymasterMode: PaymasterMode, amount = "1") {
-  switch (paymasterMode) {
-    case PaymasterMode.weth: {
-      const paymaster = WETHPaymaster__factory.connect(wethPaymaster, admin)
-      await paymaster.deposit({ value: parseEther(amount) })
-      break
-    }
-    case PaymasterMode.usdt: {
-      const paymaster = USDPaymaster__factory.connect(usdtPaymaster, admin)
-      await paymaster.deposit({ value: parseEther(amount) })
-      break
-    }
-    case PaymasterMode.token: {
-      const paymaster = FixedPaymaster__factory.connect(fixedPaymaster, admin)
-      await paymaster.deposit({ value: parseEther(amount) })
-      break
-    }
-    case PaymasterMode.gasless: {
-      const paymaster = VerifyingPaymaster__factory.connect(
-        gaslessPaymaster,
-        admin,
-      )
-      await paymaster.deposit({ value: parseEther(amount) })
-      break
-    }
-  }
-}
-
-const MODE_PAYMASTER_MAP = {
+export const MODE_PAYMASTER_MAP = {
   [PaymasterMode.usdt]: usdtPaymaster,
   [PaymasterMode.weth]: wethPaymaster,
   [PaymasterMode.gasless]: gaslessPaymaster,
   [PaymasterMode.token]: fixedPaymaster,
+}
+
+export async function deposit(paymasterMode: PaymasterMode, amount = "1") {
+  if (paymasterMode === PaymasterMode.none) {
+    return
+  }
+
+  const paymasterAddress = MODE_PAYMASTER_MAP[paymasterMode]
+  await BasePaymaster__factory.connect(paymasterAddress, admin).deposit({
+    value: parseEther(amount),
+  })
+  return paymasterAddress
 }
 
 export async function getDepositInfo(paymasterMode: PaymasterMode) {

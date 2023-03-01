@@ -10,6 +10,7 @@ import { TransferProps, Transfer } from "./Transfer"
 import { UserBalances } from "./UserBalances"
 import VortexButton from "./VortexButton"
 import { inter } from "@/lib/css"
+import { useLogContext } from "./LogContent"
 
 type UserAccountProps = {
   paymasterMode: PaymasterMode
@@ -45,9 +46,21 @@ export const UserAccount = ({ paymasterMode }: UserAccountProps) => {
     balances &&
     Object.values(balances).some((balance) => !!balance && balance.value.gt(0))
 
+  const { appendContent } = useLogContext()
   const handleFaucetClick = async (token: Currency) => {
     await faucet(address!, token)
     await updateCurrUserBalances()
+    appendContent(`Faucet 1 ${token} to ${address}`)
+  }
+
+  const handleActivateAccount = async () => {
+    try {
+      appendContent(`Activate account...`)
+      await activateAccount()
+      appendContent(`Account activated!`)
+    } catch (e) {
+      appendContent(`Account activation failed!!!`)
+    }
   }
 
   return (
@@ -86,7 +99,7 @@ export const UserAccount = ({ paymasterMode }: UserAccountProps) => {
           </strong>
           <VortexButton
             rotate={isActivatingAccount}
-            onClick={activateAccount}
+            onClick={handleActivateAccount}
           />
         </div>
       </div>

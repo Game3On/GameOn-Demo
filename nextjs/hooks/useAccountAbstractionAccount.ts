@@ -51,8 +51,10 @@ export const useAccountAbstractionAccount = (
       await updateCurrUserBalances()
       setHasDeployed(true)
     } catch (e) {
+      setIsActivatingAccount(false)
       const error = parseExpectedGas(e as Error)
       console.log(error)
+      throw error
       // We can get error from transaction
     }
     setIsActivatingAccount(false)

@@ -6,13 +6,12 @@ import { inter } from "@/lib/css"
 import { PaymasterMode } from "@/lib/type"
 import { UserAccount } from "@/components/UserAccount"
 import { PaymasterSetting } from "@/components/PaymasterSetting"
-import { PaymasterInfo } from "@/components/PaymasterInfo"
+import { LogContent } from "@/components/LogContent"
 
 export default function Home() {
   const [paymasterMode, setPaymasterMode] = useState<PaymasterMode>(
-    PaymasterMode.none,
+    PaymasterMode.token,
   )
-
   return (
     <>
       <Head>
@@ -24,13 +23,8 @@ export default function Home() {
       </Head>
       <main className={cx("p-24 min-h-screen text-xl")}>
         <div className="space-y-6">
-          <h1
-            className={cx(
-              "text-5xl font-extrabold capitalize",
-              inter.className,
-            )}
-          >
-            account.js demo
+          <h1 className={cx("text-5xl font-extrabold", inter.className)}>
+            account.js Fixed Token Demo
           </h1>
 
           <UserAccount paymasterMode={paymasterMode} />
@@ -38,7 +32,7 @@ export default function Home() {
             paymasterMode={paymasterMode}
             handlePaymasterChange={(p) => setPaymasterMode(p)}
           />
-          <PaymasterInfo />
+          <LogContent />
         </div>
       </main>
     </>
