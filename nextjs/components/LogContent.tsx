@@ -3,7 +3,6 @@ import {
   memo,
   PropsWithChildren,
   useContext,
-  useMemo,
   useState,
 } from "react"
 import useEvent from "react-use-event-hook"
@@ -51,13 +50,13 @@ export enum LogType {
 }
 
 const COLORS = [
-  "purple-400",
-  "cyan-400",
-  "gray-400",
-  "yellow-300",
-  "pink-500",
-  "red-700",
-  "sky-600",
+  "text-purple-400",
+  "text-cyan-400",
+  "text-gray-400",
+  "text-yellow-300",
+  "text-pink-500",
+  "text-red-500",
+  "text-sky-600",
 ]
 
 const randomColor = () => {
@@ -66,15 +65,21 @@ const randomColor = () => {
 }
 
 const ColoredText = memo(function ColoredText({ children }: PropsWithChildren) {
-  return <p className={`break-words text-${randomColor()}`}>{children}</p>
+  return <p className={`break-words ${randomColor()}`}>{children}</p>
 })
 
 export const LogContent = () => {
-  const { content } = useLogContext()
+  const { content, resetContent } = useLogContext()
 
   return (
-    <div className="bg-[rgb(24,27,36)] text-[rgb(133,227,191)] p-4 max-w-xl font-light text-sm overflow-scroll">
-      <p className="uppercase">[Log content]</p>
+    <div className="bg-gray-900 p-4 max-w-xl font-light text-sm overflow-scroll group relative">
+      <button
+        className="group-hover:block hidden rounded-sm absolute right-2 top-2 p-1 bg-slate-100 text-dark-200"
+        onClick={resetContent}
+      >
+        Clear
+      </button>
+      <p className="uppercase text-green-300">[Log content]</p>
       {content?.split("\n").map((text, i) => (
         <ColoredText key={i}>{text}</ColoredText>
       ))}

@@ -24,7 +24,7 @@ export default function Home() {
       <main className={cx("p-24 min-h-screen text-xl")}>
         <div className="space-y-6">
           <h1 className={cx("text-5xl font-extrabold", inter.className)}>
-            account.js Fixed Token Demo
+            account.js Token Paymaster Usage Demo
           </h1>
 
           <UserAccount paymasterMode={paymasterMode} />

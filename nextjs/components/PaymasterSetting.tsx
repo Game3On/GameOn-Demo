@@ -1,7 +1,8 @@
-import { deposit, getDeposit } from "@/lib/helper"
+import { deposit } from "@/lib/helper"
 import { PaymasterMode } from "@/lib/type"
-import { formatEther } from "ethers/lib/utils.js"
-import React from "react"
+import { useEffect } from "react"
+import useEvent from "react-use-event-hook"
+import { Mutex } from "async-mutex"
 import { useLogContext } from "./LogContent"
 
 type PaymasterSettingProps = {
@@ -9,22 +10,28 @@ type PaymasterSettingProps = {
   handlePaymasterChange: (p: PaymasterMode) => void
 }
 
+const mutex = new Mutex()
+
 export const PaymasterSetting = ({
   paymasterMode,
   handlePaymasterChange,
 }: PaymasterSettingProps) => {
   const { appendContent } = useLogContext()
-  const handleDeposit = async () => {
+  const handleDeposit = useEvent(async () => {
     const address = await deposit(paymasterMode)
     const paymasterName = PaymasterMode[paymasterMode]
-    appendContent(`Deposit 1 ether to ${paymasterName} paymaster ${address}`)
-    const depositBalance = await getDeposit(paymasterMode)
-    appendContent(
-      `${paymasterName} paymaster has ${formatEther(
-        depositBalance ?? 0,
-      )} ethers now!`,
-    )
-  }
+    // appendContent(`Deposit 1 ether to ${paymasterName} paymaster ${address}`)
+    // const depositBalance = await getDeposit(paymasterMode)
+    // appendContent(
+    //   `${paymasterName} paymaster has ${formatEther(
+    //     depositBalance ?? 0,
+    //   )} ethers now!`,
+    // )
+  })
+
+  useEffect(() => {
+    mutex.runExclusive(() => handleDeposit())
+  }, [handleDeposit])
 
   return (
     <div className="space-y-2">
@@ -62,12 +69,12 @@ export const PaymasterSetting = ({
           use tokenPaymaster
         </button>
       </div> */}
-      <button
+      {/* <button
         className="capitalize items-center rounded-md border border-transparent bg-blue-600 px-2 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
         onClick={handleDeposit}
       >
         deposit 1 ether
-      </button>
+      </button> */}
     </div>
   )
 }

@@ -295,15 +295,18 @@ export const transfer = async (
       //   .getSigner()
       //   .smartAccountAPI.createSignedUserOp({
       //     target,
-      //     data: "0x00",
+      //     data: "0x",
       //     value: parseEther(amount),
       //   })
       // const hash = await aaProvider.httpRpcClient.sendUserOpToBundler(op)
       // console.log("🚀 ~ file: helper.ts:305 ~ hash:", hash)
-      await aaProvider.getSigner().sendTransaction({
+      const response = await aaProvider.getSigner().sendTransaction({
         to: target,
+        data: "0x0".padEnd(4, "0"),
         value: parseEther(amount),
+        gasLimit: 1e5,
       })
+      await response.wait()
       break
     }
     case Currency.weth:
@@ -312,14 +315,15 @@ export const transfer = async (
       const tokenAddress = TOKEN_ADDRESS_MAP[currency]
       const tokenContract = ERC20__factory.connect(tokenAddress, aaProvider)
       const decimals = await tokenContract.decimals()
-      const data = ERC20__factory.createInterface().encodeFunctionData(
-        "transfer",
-        [target, parseUnits(amount, decimals)],
-      )
-      await aaProvider.getSigner().sendTransaction({
+      const data = tokenContract.interface.encodeFunctionData("transfer", [
+        target,
+        parseUnits(amount, decimals),
+      ])
+      const response = await aaProvider.getSigner().sendTransaction({
         data,
         to: tokenAddress,
       })
+      await response.wait()
       break
     }
     default: {

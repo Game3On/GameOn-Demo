@@ -1,6 +1,7 @@
 import React from "react"
 import { Address } from "wagmi"
 import cx from "clsx"
+import { Mutex } from "async-mutex"
 import { useAccountAbstractionAccount } from "@/hooks/useAccountAbstractionAccount"
 import { useIsMounted } from "@/hooks/useIsMounted"
 import { useTransfer } from "@/hooks/useTransfer"
@@ -16,6 +17,8 @@ type UserAccountProps = {
   paymasterMode: PaymasterMode
 }
 
+const mutex = new Mutex()
+
 export const UserAccount = ({ paymasterMode }: UserAccountProps) => {
   const isMounted = useIsMounted()
   const {
@@ -29,6 +32,7 @@ export const UserAccount = ({ paymasterMode }: UserAccountProps) => {
     updateCurrUserBalances,
     aaProvider,
   } = useAccountAbstractionAccount(paymasterMode)
+  const { appendContent } = useLogContext()
   const transfer = useTransfer(aaProvider)
   const handleTransfer: TransferProps["handleTransfer"] = async (
     { target, amount, currency },
@@ -38,18 +42,23 @@ export const UserAccount = ({ paymasterMode }: UserAccountProps) => {
       return
     }
     setSubmitting(true)
-    await transfer(currency, target as Address, amount)
-    await updateCurrUserBalances()
+    await mutex.runExclusive(async () => {
+      appendContent(`Transfering ${amount} to ${target}...`)
+      await transfer(currency, target as Address, amount)
+      await updateCurrUserBalances()
+    })
+    appendContent(`Transfered ${amount} to ${target}!!!`)
     setSubmitting(false)
   }
   const hasAnyBalances =
     balances &&
     Object.values(balances).some((balance) => !!balance && balance.value.gt(0))
 
-  const { appendContent } = useLogContext()
   const handleFaucetClick = async (token: Currency) => {
-    await faucet(address!, token)
-    await updateCurrUserBalances()
+    await mutex.runExclusive(async () => {
+      await faucet(address!, token)
+      await updateCurrUserBalances()
+    })
     appendContent(`Faucet 1 ${token} to ${address}`)
   }
 
@@ -79,7 +88,14 @@ export const UserAccount = ({ paymasterMode }: UserAccountProps) => {
           <strong>Account Address:</strong> <p>{address}</p>{" "}
         </div>
         <div className="flex items-center gap-2">
-          <strong>Deployed:</strong> {hasDeployed.toString()}
+          <strong>Deployed:</strong>{" "}
+          <span
+            className={`${
+              hasDeployed ? "text-red-600" : "text-black"
+            } font-bold`}
+          >
+            {hasDeployed.toString()}
+          </span>
         </div>
         <button
           onClick={generateNewAccount}

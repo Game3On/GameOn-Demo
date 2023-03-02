@@ -12,6 +12,7 @@ specifiers:
   '@types/node': 18.13.0
   '@types/react': 18.0.27
   '@types/react-dom': 18.0.10
+  async-mutex: ^0.4.0
   autoprefixer: ^10.4.13
   clsx: ^1.2.1
   eslint: 8.33.0
@@ -35,6 +36,7 @@ dependencies:
   '@ethersproject/providers': 5.7.2
   '@next/font': 13.1.6
   '@openfort-sdk/scw': 0.0.5
+  async-mutex: 0.4.0
   clsx: 1.2.1
   ethers: 5.7.2
   formik: 2.2.9_react@18.2.0
@@ -2057,6 +2059,12 @@ packages:
 
   /async-mutex/0.2.6:
     resolution: {integrity: sha512-Hs4R+4SPgamu6rSGW8C7cV9gaWUKEHykfzCCvIRuaVv636Ju10ZdeUbvb4TBEW0INuq2DHZqXbK4Nd3yG4RaRw==}
+    dependencies:
+      tslib: 2.5.0
+    dev: false
+
+  /async-mutex/0.4.0:
+    resolution: {integrity: sha512-eJFZ1YhRR8UN8eBLoNzcDPcy/jqjsg6I1AP+KvWQX80BqOSW1oJPJXDylPUEeMr2ZQvHgnQ//Lp6f3RQ1zI7HA==}
     dependencies:
       tslib: 2.5.0
     dev: false
